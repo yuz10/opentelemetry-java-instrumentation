@@ -9,6 +9,7 @@ import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.instrumentation.api.config.Config;
 import io.opentelemetry.instrumentation.rocketmq.RocketMqTracing;
 import org.apache.rocketmq.client.hook.ConsumeMessageHook;
+import org.apache.rocketmq.client.hook.EndTransactionHook;
 import org.apache.rocketmq.client.hook.SendMessageHook;
 
 public final class RocketMqClientHooks {
@@ -27,4 +28,6 @@ public final class RocketMqClientHooks {
       TRACING.newTracingConsumeMessageHook();
 
   public static final SendMessageHook SEND_MESSAGE_HOOK = TRACING.newTracingSendMessageHook();
+
+  public static final EndTransactionHook END_TRANSACTION_HOOK = TRACING.newTracingEndTransactionHook();
 }

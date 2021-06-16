@@ -7,6 +7,7 @@ package io.opentelemetry.instrumentation.rocketmq;
 
 import io.opentelemetry.api.OpenTelemetry;
 import org.apache.rocketmq.client.hook.ConsumeMessageHook;
+import org.apache.rocketmq.client.hook.EndTransactionHook;
 import org.apache.rocketmq.client.hook.SendMessageHook;
 
 /** Entrypoint for tracing RocketMq producers or consumers. */
@@ -28,6 +29,7 @@ public final class RocketMqTracing {
 
   private final RocketMqConsumerTracer rocketMqConsumerTracer;
   private final RocketMqProducerTracer rocketMqProducerTracer;
+  private final RocketMqEndTransactionTracer rocketMqEndTransactionTracer;
 
   RocketMqTracing(
       OpenTelemetry openTelemetry,
@@ -39,6 +41,8 @@ public final class RocketMqTracing {
             openTelemetry, captureExperimentalSpanAttributes, propagationEnabled);
     rocketMqProducerTracer =
         new RocketMqProducerTracer(openTelemetry, captureExperimentalSpanAttributes);
+    rocketMqEndTransactionTracer =
+        new RocketMqEndTransactionTracer(openTelemetry, propagationEnabled);
   }
 
   /**
@@ -55,5 +59,13 @@ public final class RocketMqTracing {
    */
   public SendMessageHook newTracingSendMessageHook() {
     return new TracingSendMessageHookImpl(rocketMqProducerTracer, propagationEnabled);
+  }
+
+  /**
+   * Returns a new {@link EndTransactionHook} for use with methods like {@link
+   * org.apache.rocketmq.client.impl.producer.DefaultMQProducerImpl#registerEndTransactionHook(EndTransactionHook)}.
+   */
+  public EndTransactionHook newTracingEndTransactionHook() {
+    return new TracingEndTransactionHookImpl(rocketMqEndTransactionTracer);
   }
 }
